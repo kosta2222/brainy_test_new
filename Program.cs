@@ -25,7 +25,7 @@ namespace Brainy
         MODIF_MSE = 18
 
     }
-    
+
     public class Dense
     {
         public int in_;
@@ -38,6 +38,7 @@ namespace Brainy
         public double[] hidden;
         public double[] errors;
         public bool with_bias;
+        public double[] batch_acc_tmp_l;
         public Dense()
         {  // конструктор
             in_ = 0;  // количество входов слоя
@@ -47,6 +48,7 @@ namespace Brainy
             act_func = (int)Ops.RELU;
             hidden = new double[10];  // вектор после функции активации
             errors = new double[10];  // вектор ошибок слоя
+            batch_acc_tmp_l = new double[10]; // накапливаем компоненты градиентов
             with_bias = false;
         }
     }
@@ -152,20 +154,29 @@ namespace Brainy
         }
 
 
-        public void calc_out_error(double[] targets)
+        public int calc_out_error(double[] targets, int samples_count, int batch_size)
         {
             Dense layer;
-            double tmp_v;
+            // double tmp_v;
             int out_;
             layer = net[nl_count - 1];
             out_ = layer.out_;
 
             for (int row = 0; row < out_; row++)
             {
-                tmp_v = (layer.hidden[row] - targets[row]) * operations(
-                    layer.act_func + 1, layer.hidden[row]);
-                layer.errors[row] = tmp_v;
+                if (samples_count % (batch_size + 1) != 0)
+                {
+                    layer.batch_acc_tmp_l[row] = (layer.hidden[row] - targets[row]) * operations(
+                        layer.act_func + 1, layer.hidden[row]);
+                }
+                else{
+                    layer.errors[row] = layer.batch_acc_tmp_l[row];
+                    samples_count=0; 
             }
+            }
+
+            samples_count += 1;
+            return samples_count;
         }
 
         public void calc_hid_error(int layer_ind)
@@ -341,7 +352,7 @@ namespace Brainy
                             return 1;
                         else if (x < 0.5 && x > -0.5)
                             return x;
-                        else if (x <= -0.5)
+                        else if (x >= -0.5)
                             return 0;
                     }
                     break;
@@ -452,36 +463,36 @@ namespace Brainy
     //                 break;
     //         }
 
-            // plot_gr("gr.png", errors_y, epochs_x);
+    // plot_gr("gr.png", errors_y, epochs_x);
 
-            //     for single_array_ind in range(len(train_inp)):;
-            //         inputs = train_inp[single_array_ind];
+    //     for single_array_ind in range(len(train_inp)):;
+    //         inputs = train_inp[single_array_ind];
 
-            //         output_2_layer = feed_forwarding( inputs);
+    //         output_2_layer = feed_forwarding( inputs);
 
-            //     equal_flag = 0;
-            //     for row in range(net[0].out):;
-            //         elem_net = output_2_layer[row];
-            //         elem_train_out = train_out[single_array_ind][row];
-            //     if elem_net > 0.5:;
-            //     elem_net = 1;
-            //     else:
-            //         elem_net = 0;
-            //     Console.WriteLine("elem:", elem_net);
-            //     Console.WriteLine("elem tr out:", elem_train_out); ;
-            //     if elem_net == elem_train_out:;
-            //     equal_flag = 1;
-            //     else:;
-            //     equal_flag = 0;
-            //     break;
-            //     if equal_flag == 1:;
-            //     Console.WriteLine("-vecs are equal-");
-            // else:;
-            //     Console.WriteLine("-vecs are not equal-");
+    //     equal_flag = 0;
+    //     for row in range(net[0].out):;
+    //         elem_net = output_2_layer[row];
+    //         elem_train_out = train_out[single_array_ind][row];
+    //     if elem_net > 0.5:;
+    //     elem_net = 1;
+    //     else:
+    //         elem_net = 0;
+    //     Console.WriteLine("elem:", elem_net);
+    //     Console.WriteLine("elem tr out:", elem_train_out); ;
+    //     if elem_net == elem_train_out:;
+    //     equal_flag = 1;
+    //     else:;
+    //     equal_flag = 0;
+    //     break;
+    //     if equal_flag == 1:;
+    //     Console.WriteLine("-vecs are equal-");
+    // else:;
+    //     Console.WriteLine("-vecs are not equal-");
 
-            //     Console.WriteLine("========");
+    //     Console.WriteLine("========");
 
-        
-    }
+
+}
 
 
