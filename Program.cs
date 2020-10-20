@@ -168,6 +168,7 @@ namespace Brainy
                 {
                     layer.batch_acc_tmp_l[row] = (layer.hidden[row] - targets[row]) * operations(
                         layer.act_func + 1, layer.hidden[row]);
+                    samples_count += 1;
                 }
                 else{
                     layer.errors[row] = layer.batch_acc_tmp_l[row];
@@ -175,7 +176,7 @@ namespace Brainy
             }
             }
 
-            samples_count += 1;
+            
             return samples_count;
         }
 
